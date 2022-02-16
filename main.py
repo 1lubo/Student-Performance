@@ -1,67 +1,69 @@
 import json
 from pathlib import Path
-from statistics import mean
+
+
+def get_average_mark_student(student):
+    overall_mark = 0
+    for mark in student:
+        if mark in subjects:
+            overall_mark += student[mark]
+    student['average'] = overall_mark / len(subjects)
+    return student  # return student report card with added average mark
+
+
+# add mark for subject to dictionary of individual subject marks
+def get_average_mark_subject(student):
+    for mark in student:
+        if mark in subjects:
+            if mark in subject_marks:
+                subject_marks[mark] = subject_marks.get(mark) + student[mark]
+            else:
+                subject_marks[mark] = student[mark]
+
+
+# add average mark for subject to dictionary of individual grade marks
+def get_average_mark_grade(student):
+    student_grade = student.get('grade')
+    if student_grade in grade_marks:
+        grade_marks[student_grade] = grade_marks.get(
+            student_grade) + student.get('average')
+    else:
+        grade_marks[student_grade] = student.get('average')
+
 
 files = Path('./students').glob('*')
-
 subjects = ['math', 'science', 'history', 'english', 'geography']
-grades = {}
-subject_grades = {}
-
-for subject in subjects:  # initialize subject grades dictionary
-    subject_grades[subject] = []
-
-
-worst_student_id = 0  # start with the id of first student
-worst_average = 100  # start with the highest possible average
-best_student_id = 0  # start with the id of first student
-best_average = 0  # start with the lowest possible average
-num_students = 0  # counter for number of students
-total_grades = 0  # overall grades
+report_cards = []
+subject_marks = {}
+grade_marks = {}
+average_grade = 0
 
 for file in files:  # iterate through all files
     with open(file, 'r') as f:  # open file
         data = json.load(f)  # load data
-        current_id = data.get('id')
-        current_grade = data.get('grade')
+        # append student report card to list of report cards
+        report_cards.append(get_average_mark_student(data))
 
-        current_average = []
 
-        for subject in subjects:
-            current_average.append(data.get(subject))
-            subject_grades[subject].append(data.get(subject))
+for card in report_cards:  # iterate through report cards
+    # add mark to dictionary of individual subject's marks
+    get_average_mark_subject(card)
+    # add student average mark to dictionary of individual grade's marks
+    get_average_mark_grade(card)
+    # add student average to the running total of average marks
+    average_grade += card.get('average')
 
-        if sum(current_average) / len(current_average) < worst_average:
-            worst_student_id = current_id
-            worst_average = sum(current_average) / len(current_average)
-        if sum(current_average) / len(current_average) > best_average:
-            best_student_id = current_id
-            best_average = sum(current_average) / len(current_average)
+# find the student card with the lowest average mark
+worst_student = min(report_cards, key=lambda card: card['average'])
+# find the student card with the highest average mark
+best_student = max(report_cards, key=lambda card: card['average'])
 
-        if current_grade in grades:
-            grades[current_grade].append(
-                sum(current_average) / len(current_average))
-        else:
-            grades[current_grade] = [
-                sum(current_average) / len(current_average)]
-
-        total_grades += sum(current_average) / len(current_average)
-        num_students += 1
-
-for grade in grades:
-    average = mean(grades.get(grade))
-    grades[grade] = average  # get average mark for each grade
-
-for subject in subject_grades:
-    average = mean(subject_grades.get(subject))
-    subject_grades[subject] = average  # get average mark for each subject
-
-print(
-    f"Average Student Grade: {(total_grades / num_students):.2f} \n"
-    f"Hardest Subject: {min(subject_grades, key=subject_grades.get)} \n"
-    f"Easiest Subject: {max(subject_grades, key=subject_grades.get)} \n"
-    f"Best Performing Grade: {min(grades, key=grades.get)} \n"
-    f"Worst Performing Grade: {max(grades, key=grades.get)} \n"
-    f"Best Student ID: {best_student_id} \n"
-    f"Worst Student ID: {worst_student_id} "
-)
+print(f''' 
+Average Student Grade: {(average_grade / len(report_cards)):.2f}
+Hardest Subject: {min(subject_marks, key=subject_marks.get)}
+Easiest Subject: {max(subject_marks, key=subject_marks.get)}
+Best Performing Grade: {max(grade_marks, key=grade_marks.get)}
+Worst Performing Grade: {min(grade_marks, key=grade_marks.get)}
+Best Student ID: {best_student['id']}
+Worst Student ID: {worst_student['id']}
+''')
