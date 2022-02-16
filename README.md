@@ -31,14 +31,14 @@ Your project will need to load all of the *.json* files and output the following
 
 Please download the template folder to start this project. Inside the folder you will find a folder named students that contains 1000 .json files. Write your code inside of the main.py file and when finished confirm that your programs output matches the expected output. There is only one correct answer.
 
-**##Expected Output**
+## **Expected Output**
 
 
-**- Average Student Grade: 50.44**
-**- Hardest Subject: geography**
-**- Easiest Subject: english**
-**- Best Performing Grade: 6**
-**- Worst Performing Grade: 5**
-**- Best Student ID: 549**
-**- Worst Student ID: 637**
+- **Average Student Grade: 50.44**
+- **Hardest Subject: geography**
+- **Easiest Subject: english**
+- **Best Performing Grade: 6**
+- **Worst Performing Grade: 5**
+- **Best Student ID: 549**
+- **Worst Student ID: 637**
 
